@@ -296,7 +296,7 @@ public class ClientGui extends Thread{
 			String cmd = "";
 			if (dest.size() == 1) cmd = "NICK";
 			else if (dest.size() > 1) cmd = "MULTICAST";
-			else cmd = "BROADCAST";
+			else cmd = "BROADCAST";l
 			output.println(cmd+"__"+message);
 		}
       jtextInputChat.requestFocus();
