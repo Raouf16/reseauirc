@@ -122,4 +122,33 @@ public class Server {
 		}
 		return null;
 	}
+	
+	public static boolean addMember(String login, String mdp){
+		if(users.containsKey(login)){
+			return false;
+		}
+		else {
+			users.put(login, mdp);
+			rewriteAnnuaire();
+		}
+		return true;
+	}
+	
+	public static void rewriteAnnuaire() {
+		String fileName = "users.txt";
+		try {
+			FileWriter fw = new FileWriter (new File(fileName));
+			for(String user : users.keySet()) {
+				fw.write (user+" "+users.get(user));
+		        fw.write ("\r\n");
+			}
+			
+			fw.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
 }

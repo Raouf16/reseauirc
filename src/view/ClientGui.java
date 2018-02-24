@@ -30,15 +30,22 @@ public class ClientGui extends Thread{
   private int PORT;
   private String name; 
   private String password;
+  private String login;
+  private String pwd;
+  private String confirmpwd;
   BufferedReader input;
   PrintWriter output;
   Socket server;
+  public static final int MAX_TRY = 3;
 
   public ClientGui() {
     this.serverName = "localhost";
     this.PORT = 1995;
     this.name = "nickname";
     this.password = "password";
+    this.login = "login";
+    this.pwd = "password";
+    this.confirmpwd = "confirm password";
 
     String fontfamily = "Arial, sans-serif";
     Font font = new Font(fontfamily, Font.PLAIN, 15);
@@ -83,12 +90,18 @@ public class ClientGui extends Thread{
     final JButton jsbtn = new JButton("Send");
     jsbtn.setFont(font);
     jsbtn.setBounds(575, 410, 100, 35);
+    
+    // button Confirm 
+    final JButton jsbtncon = new JButton("Confirm");
+    jsbtncon.setFont(font);
+    jsbtncon.setBounds(575, 380, 100, 35);
 
     // button Disconnect
     final JButton jsbtndeco = new JButton("Disconnect");
     jsbtndeco.setFont(font);
     jsbtndeco.setBounds(25, 410, 130, 35);
 
+ 
     jtextInputChat.addKeyListener(new KeyAdapter() {
       // send message on Enter
       public void keyPressed(KeyEvent e) {
@@ -120,10 +133,17 @@ public class ClientGui extends Thread{
 
     // Connection view
     final JTextField jtfName = new JTextField(this.name);
-    final JTextField jtfPassword = new JTextField(this.password);
+    final JPasswordField jtfPassword = new JPasswordField(this.password);
     final JTextField jtfport = new JTextField(Integer.toString(this.PORT));
     final JTextField jtfAddr = new JTextField(this.serverName);
+    final JTextField jtflogin = new JTextField(this.login);
+    JLabel jlfpwd = new JLabel("Password");
+    JLabel jlfconfirmpwd = new JLabel("Confirm Password");
+    final JPasswordField jtfpwd = new JPasswordField(this.pwd);
+    final JPasswordField jtfconfirmpwd = new JPasswordField(this.confirmpwd);
+    
     final JButton jcbtn = new JButton("Connect");
+    final JButton jcbtnlog = new JButton("Inscription");
 
     // check if those field are not empty
     jtfName.getDocument().addDocumentListener(new TextListener(jtfName, jtfPassword, jtfport, jtfAddr, jcbtn));
@@ -133,18 +153,26 @@ public class ClientGui extends Thread{
 
     // position des Modules
     jcbtn.setFont(font);
+    jcbtnlog.setFont(font);
     jtfAddr.setBounds(25, 380, 135, 40);
     jtfName.setBounds(375, 380, 135, 40);
     jtfPassword.setBounds(375, 425, 135, 40);
     jtfport.setBounds(200, 380, 135, 40);
-    jcbtn.setBounds(575, 380, 100, 40);
-
+    jcbtn.setBounds(575, 380, 100, 30);
+    jcbtnlog.setBounds(575, 415, 100, 30);
+    jtflogin.setBounds(25, 380, 135, 40);
+    jtfpwd.setBounds(200, 380, 135, 40);
+    jtfconfirmpwd.setBounds(375, 380, 135, 40);
+    jlfpwd.setBounds(204, 410, 135, 40);
+    jlfconfirmpwd.setBounds(379, 410, 135, 40);
+    
     // couleur par defaut des Modules fil de discussion et liste des utilisateurs
     jtextFilDiscu.setBackground(Color.cyan);
     jtextListUsers.setBackground(Color.LIGHT_GRAY);
 
     // ajout des éléments
     jfr.add(jcbtn);
+    jfr.add(jcbtnlog);
     jfr.add(jtextFilDiscuSP);
     jfr.add(jsplistuser);
     jfr.add(jtfName);
@@ -155,7 +183,7 @@ public class ClientGui extends Thread{
 
 
     // info sur le Chat
-    appendToPane(jtextFilDiscu, "<h4>Salut, bienvenue sur le chat de Zina, Lounes, Yacine & Raouf</h4>"
+    appendToPane(jtextFilDiscu, "<h2><center>Welcome to ZLYR instant messaging</center></h2>"
         +"<ul>"
         +"<h3>Voici quelques commandes utiles : </h3>"	
         +"<li><b>@nickname</b> pour envoyer un Message privé à l'utilisateur 'nickname'</li>"
@@ -168,11 +196,14 @@ public class ClientGui extends Thread{
     jcbtn.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent ae) {
         try {
+        	System.out.println("je rentre");
           name = jtfName.getText();
           password = jtfPassword.getText();
           String port = jtfport.getText();
           serverName = jtfAddr.getText();
           PORT = Integer.parseInt(port);
+          boolean authentifier = false;
+          int count = 0;
 
           appendToPane(jtextFilDiscu, "<span>Connecting to " + serverName + " on port " + PORT + "...</span>");
           server = new Socket(serverName, PORT);
@@ -182,25 +213,36 @@ public class ClientGui extends Thread{
 
           input = new BufferedReader(new InputStreamReader(server.getInputStream()));
           output = new PrintWriter(server.getOutputStream(), true);
-
+          
           //authentification
-          output.println(name);
-          output.println(password);
-
-          // create new Read Thread
-          read = new Read();
-          read.start();
-          jfr.remove(jtfName);
-          jfr.remove(jtfport);
-          jfr.remove(jtfAddr);
-          jfr.remove(jcbtn);
-          jfr.add(jsbtn);
-          jfr.add(jtextInputChatSP);
-          jfr.add(jsbtndeco);
-          jfr.revalidate();
-          jfr.repaint();
-          jtextFilDiscu.setBackground(Color.WHITE);
-          jtextListUsers.setBackground(Color.WHITE);
+          if(Server.isValidUser(name, password)) {
+        	  // create new Read Thread
+              read = new Read();
+              read.start();
+              jfr.remove(jtfName);
+              jfr.remove(jtfPassword);
+              jfr.remove(jtfport);
+              jfr.remove(jtfAddr);
+              jfr.remove(jcbtn);
+              jfr.remove(jcbtnlog);
+              jfr.add(jsbtn);
+              jfr.add(jtextInputChatSP);
+              jfr.add(jsbtndeco);
+              jfr.revalidate();
+              jfr.repaint();
+              jtextFilDiscu.setBackground(Color.WHITE);
+              jtextListUsers.setBackground(Color.WHITE);
+              authentifier = true;
+              output.println(name);
+              output.println(password);
+          }
+          else {
+		        appendToPane(jtextFilDiscu, "<span>Could not connect to Server</span>");
+		        appendToPane(jtextFilDiscu, "<span>Please enter correct nickname & password</span>");
+		        jfr.revalidate();
+		        jfr.repaint();
+          }
+          
         } catch (Exception ex) {
           appendToPane(jtextFilDiscu, "<span>Could not connect to Server</span>");
           JOptionPane.showMessageDialog(jfr, ex.getMessage());
@@ -208,7 +250,63 @@ public class ClientGui extends Thread{
       }
 
     });
-
+    
+    // ON INSCRIP 
+    jcbtnlog.addActionListener(new ActionListener()  {
+        public void actionPerformed(ActionEvent ae) {
+          jfr.remove(jtfName);
+          jfr.remove(jtfport);
+          jfr.remove(jtfAddr);
+          jfr.remove(jcbtn);
+          jfr.remove(jcbtnlog);
+          jfr.remove(jtfPassword);
+  
+          jfr.add(jtflogin);
+          jfr.add(jtfpwd);
+          jfr.add(jtfconfirmpwd);
+          jfr.add(jlfpwd);
+          jfr.add(jlfconfirmpwd);
+          jfr.add(jsbtncon);
+          jfr.revalidate();
+          jfr.repaint();
+        }
+      });
+    
+    // ON CONFIRM
+    jsbtncon.addActionListener(new ActionListener()  {
+        public void actionPerformed(ActionEvent ae) {
+        	
+        	 if(jtfpwd.getText().equals(jtfconfirmpwd.getText())) {
+        		 
+        		 if(Server.addMember(jtflogin.getText(), jtfpwd.getText())) {
+        			 JOptionPane.showMessageDialog(jfr, "Inscription effectué ! vous pouvez vous connecter");
+                	 jfr.remove(jtflogin);
+                     jfr.remove(jtfpwd);
+                     jfr.remove(jtfconfirmpwd);
+                     jfr.remove(jsbtncon);
+          
+                     jfr.add(jtfName);
+                     jfr.add(jtfport);
+                     jfr.add(jtfAddr);
+                     jfr.add(jcbtn);
+                     jfr.add(jtfPassword);
+                     jfr.revalidate();
+                 	 jfr.repaint();
+        		 }
+        		 else {
+        			 JOptionPane.showMessageDialog(jfr, "User déjà existant, choisir un autre");
+                	 jfr.revalidate();
+                 	 jfr.repaint();
+        		 }
+        	 }
+        	 else {
+        		 JOptionPane.showMessageDialog(jfr, "Les mots de passe ne correspondent pas, veuillez vous réinscrire");
+            	 jfr.revalidate();
+             	 jfr.repaint();
+        	 }
+        }
+      });
+    
     // on deco
     jsbtndeco.addActionListener(new ActionListener()  {
       public void actionPerformed(ActionEvent ae) {
@@ -216,6 +314,7 @@ public class ClientGui extends Thread{
         jfr.add(jtfport);
         jfr.add(jtfAddr);
         jfr.add(jcbtn);
+        jfr.add(jcbtnlog);
         jfr.remove(jsbtn);
         jfr.remove(jtextInputChatSP);
         jfr.remove(jsbtndeco);
@@ -351,4 +450,5 @@ public class ClientGui extends Thread{
       e.printStackTrace();
     }
   }
+  
 }
