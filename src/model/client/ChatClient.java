@@ -23,16 +23,13 @@ public class ChatClient implements Runnable {
 	public void run() {
 		try {
 			//pour l'envoie et la reception en UTF-8
-			out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF8"), true);
+			out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"), true);
 			in = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
 			sc = new Scanner(System.in);
 			Thread t4 = new Thread(new EmissionClient(out));
 			t4.start();
 			Thread t3 = new Thread(new ReceptionClient(in));
 			t3.start();
-
-
-
 		} catch (IOException e) {
 			System.err.println("Le serveur distant s'est déconnecté !");
 		}

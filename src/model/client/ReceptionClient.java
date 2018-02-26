@@ -11,7 +11,6 @@ public class ReceptionClient implements Runnable {
 	private String message = null;
 
 	public ReceptionClient(BufferedReader in){
-
 		this.in = Objects.requireNonNull(in);
 	}
 	

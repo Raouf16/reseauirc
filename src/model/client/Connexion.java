@@ -1,4 +1,5 @@
 package model.client;
+//package model.client;
 
 import java.net.*;
 import java.util.Scanner;
@@ -33,15 +34,13 @@ public class Connexion implements Runnable {
 				login = sc.nextLine();
 				out.println(login);
 				out.flush();
-
 				System.out.println(in.readLine());
 				pass = sc.nextLine();
 				out.println(pass);
 				out.flush();
 				String inLine = in.readLine();
 				if(inLine.equals("connecte")){
-
-					System.out.println("Je suis connecté "); 
+					System.out.println("Je suis connecté ");
 					connect = true;
 				}
 				else if(inLine.equals("Vous avez atteint le nombre d'essais max!"))
@@ -62,9 +61,7 @@ public class Connexion implements Runnable {
 			{
 				System.out.println("Au revoir");
 				socket.close();
-			}
-			
-
+			}	
 		} catch (IOException e) {
 
 			System.err.println("Le serveur ne répond plus ");

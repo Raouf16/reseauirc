@@ -196,7 +196,6 @@ public class ClientGui extends Thread{
     jcbtn.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent ae) {
         try {
-        	System.out.println("je rentre");
           name = jtfName.getText();
           password = jtfPassword.getText();
           String port = jtfport.getText();
@@ -283,6 +282,8 @@ public class ClientGui extends Thread{
                 	 jfr.remove(jtflogin);
                      jfr.remove(jtfpwd);
                      jfr.remove(jtfconfirmpwd);
+                     jfr.remove(jlfpwd);
+                     jfr.remove(jlfconfirmpwd);
                      jfr.remove(jsbtncon);
           
                      jfr.add(jtfName);
