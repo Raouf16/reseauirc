@@ -1,5 +1,5 @@
 package model.client;
-//package model.client;
+
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -21,9 +21,9 @@ public class EmissionClient implements Runnable {
 
 	}
 
-	public boolean isACommand(String message) {
+	public static boolean isACommand(String message) {
 		String command = Arrays.asList(message.split(" ")).get(0);
-		String commandList [] = {"NICK", "USER", "OPER", "MODE", "JOIN", "TOPIC", "INVITE", "KICK"};
+		String commandList [] = {"PASSWORD", "PASS", "NICK", "SERVER", "OPER", "QUIT", "SQUIT", "JOIN", "PART", "MODE", "TOPIC", "NAMES", "LIST", "INVITE", "KICK", "PRVMSG", "NOTICE", "VERSION", "STATS", "LINKS", "TIME", "CONNECT", "TRACE", "ADMIN", "INFO", "WHO", "WHOIS", "WHOWAS", "KILL", "PING", "PONG", "ERROR" , "REHASH", "RESTART", "SUMMON", "USER", "OPERWALL", "USERHOST", "ISON"};
 		return Arrays.asList(commandList).contains(command);
 	}
 	
@@ -40,14 +40,6 @@ public class EmissionClient implements Runnable {
 				out.flush();
 			}
 			else {
-				
-				/*for (String user : Server.getUsers())
-				{
-					for (String msg : Arrays.asList(message.split(" "))) {
-						if (msg.contains("@"+user)) dest.add(user);
-					}
-				}*/
-				
 				for (String msg : Arrays.asList(message.split(" "))) {
 					if (msg.startsWith("@")) dest.add(msg.substring(1));
 				}

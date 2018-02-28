@@ -1,5 +1,5 @@
 package model.client;
-//package model.client;
+
 import java.io.*;
 import java.net.*;
 

@@ -19,6 +19,10 @@ public class ReceptionClient implements Runnable {
 		while(true){
 			try {
 				message = in.readLine();
+				if (message == null) {
+					System.out.println("Le serveur a quitté, connexion interrompue");
+					System.exit(1);
+				}
 				System.out.println(message);
 
 			} catch (IOException e) {

@@ -13,6 +13,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.html.*;
 
+import model.client.EmissionClient;
 import model.server.Server;
 
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ public class ClientGui extends Thread{
   PrintWriter output;
   Socket server;
   public static final int MAX_TRY = 3;
+  private static ArrayList<String> ListUser = new ArrayList<>();
 
   public ClientGui() {
     this.serverName = "localhost";
@@ -186,8 +188,8 @@ public class ClientGui extends Thread{
     appendToPane(jtextFilDiscu, "<h2><center>Welcome to ZLYR instant messaging</center></h2>"
         +"<ul>"
         +"<h3>Voici quelques commandes utiles : </h3>"	
-        +"<li><b>@nickname</b> pour envoyer un Message privé à l'utilisateur 'nickname'</li>"
-        +"<li><b>#d3961b</b> pour changer la couleur de son pseudo au code hexadécimal indiquer</li>"
+        +"<li><b>NICK</b> suivi du nickname afin de créer un nouvel utilisateur ou changer son username</li>"
+        +"<li><b>PASS</b> suivi du mdp pour changer son mot de passe</li>"
         +"<li><b>;)</b> quelques smileys sont implémentés</li>"
         +"<li><b>flèche du haut</b> pour reprendre le dernier message tapé</li>"
         +"</ul><br/>");
@@ -197,19 +199,22 @@ public class ClientGui extends Thread{
       public void actionPerformed(ActionEvent ae) {
         try {
           name = jtfName.getText();
-          password = jtfPassword.getText();
+          password = String.valueOf(jtfPassword.getPassword());
           String port = jtfport.getText();
           serverName = jtfAddr.getText();
           PORT = Integer.parseInt(port);
-          boolean authentifier = false;
-          int count = 0;
-
+          ClientGui.ListUser.add(name);
+          jtextListUsers.setText(null);
+          for (String user : ListUser) {
+              appendToPane(jtextListUsers, "@" + user);
+          }
           appendToPane(jtextFilDiscu, "<span>Connecting to " + serverName + " on port " + PORT + "...</span>");
           server = new Socket(serverName, PORT);
 
           appendToPane(jtextFilDiscu, "<span>Connected to " +
               server.getRemoteSocketAddress()+"</span>");
 
+          
           input = new BufferedReader(new InputStreamReader(server.getInputStream()));
           output = new PrintWriter(server.getOutputStream(), true);
           
@@ -231,7 +236,6 @@ public class ClientGui extends Thread{
               jfr.repaint();
               jtextFilDiscu.setBackground(Color.WHITE);
               jtextListUsers.setBackground(Color.WHITE);
-              authentifier = true;
               output.println(name);
               output.println(password);
           }
@@ -275,9 +279,9 @@ public class ClientGui extends Thread{
     jsbtncon.addActionListener(new ActionListener()  {
         public void actionPerformed(ActionEvent ae) {
         	
-        	 if(jtfpwd.getText().equals(jtfconfirmpwd.getText())) {
+        	 if(String.valueOf(jtfpwd.getPassword()).equals(String.valueOf(jtfconfirmpwd.getPassword()))) {
         		 
-        		 if(Server.addMember(jtflogin.getText(), jtfpwd.getText())) {
+        		 if(Server.addMember(jtflogin.getText(), String.valueOf(jtfpwd.getPassword()))) {
         			 JOptionPane.showMessageDialog(jfr, "Inscription effectué ! vous pouvez vous connecter");
                 	 jfr.remove(jtflogin);
                      jfr.remove(jtfpwd);
@@ -326,6 +330,11 @@ public class ClientGui extends Thread{
         jtextFilDiscu.setBackground(Color.LIGHT_GRAY);
         jtextListUsers.setBackground(Color.LIGHT_GRAY);
         appendToPane(jtextFilDiscu, "<span>Connection closed.</span>");
+        ClientGui.ListUser.remove(name);
+        jtextListUsers.setText(null);
+        for (String user : ListUser) {
+            appendToPane(jtextListUsers, "@" + user);
+        }
         output.close();
       }
     });
@@ -381,24 +390,29 @@ public class ClientGui extends Thread{
         return;
       }
       this.oldMsg = message;
-      ArrayList<String> dest = new ArrayList<>();
-		if (message.equals("quit") || message.equals("QUIT")) {
-			output.println("QUIT");
-			output.flush();
+  	ArrayList<String> dest = new ArrayList<>();
+	if (message.equals("quit") || message.equals("QUIT")) {
+		output.println("QUIT");
+		output.flush();
+	}
+	else {
+		for (String msg : Arrays.asList(message.split(" "))) {
+			if (msg.startsWith("@")) dest.add(msg.substring(1));
 		}
+		
+		String cmd = "";
+		if (dest.size() == 1) cmd = "UNICAST";
+		else if (dest.size() > 1) cmd = "MULTICAST";
 		else {
-			for (String user : Server.getUsers())
-			{
-				for (String msg : Arrays.asList(message.split(" "))) {
-					if (msg.contains("@"+user)) dest.add(user);
-				}
+			if (EmissionClient.isACommand(message)) {
+				cmd = Arrays.asList(message.split(" ")).get(0);
+			}else {
+				cmd = "BROADCAST";
 			}
-			String cmd = "";
-			if (dest.size() == 1) cmd = "NICK";
-			else if (dest.size() > 1) cmd = "MULTICAST";
-			else cmd = "BROADCAST";
-			output.println(cmd+"__"+message);
 		}
+		output.println(cmd+"__"+message);
+		output.flush();
+	}
       jtextInputChat.requestFocus();
       jtextInputChat.setText(null);
     } catch (Exception ex) {
@@ -419,19 +433,9 @@ public class ClientGui extends Thread{
         try {
           message = input.readLine();
           if(message != null){
-            if (message.charAt(0) == '[') {
-              message = message.substring(1, message.length()-1);
-              ArrayList<String> ListUser = new ArrayList<String>(
-                  Arrays.asList(message.split(", "))
-                  );
-              jtextListUsers.setText(null);
-              for (String user : ListUser) {
-                appendToPane(jtextListUsers, "@" + user);
-              }
-            }else{
               appendToPane(jtextFilDiscu, message);
-            }
-          }
+           }
+          
         }
         catch (IOException ex) {
           System.err.println("Failed to parse incoming message");

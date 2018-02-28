@@ -1,5 +1,6 @@
 package model.client;
-//package model.client;
+
+
 
 import java.net.*;
 import java.util.Scanner;

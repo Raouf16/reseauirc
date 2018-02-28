@@ -1,38 +1,42 @@
 package model.server;
-//package model.server;
 
 import java.util.ArrayList;
 
 public class Group {
-	private String operator;
+	private ArrayList<String> operators;
 	private String mode;
 	private String topic; 
 	private String password;
+	private String drapeauTopic;
+	private int maxUsers;
 	private final ArrayList<String> members;
 	
-	public Group (String operator, String mode, String topic, String password) {
-		this.operator = operator; 
+	public Group (ArrayList<String> operators, String mode, String topic, String password, ArrayList<String> members) {
+		this.operators = operators;
+		this.members = members; 
 		this.mode = mode;
 		this.topic = topic;
-		this.members = new ArrayList<>();
-		this.members.add(operator);
 		this.password = password;
+		this.maxUsers = 9999; //Default value
 	}
 	
-	public Group (String operator, String mode, String topic, String password, ArrayList<String> members) {
-		this.operator = operator; 
-		this.mode = mode;
-		this.topic = topic;
-		this.members = members;
-		this.password = password;
-	}
-	
-	public void user(String user) {
+	public void addMember(String user) {
+		if (maxUsers == 9999){
 		this.members.add(user);
+	}
+		else {
+			if (members.size() < maxUsers) {
+				this.members.add(user);
+			}
+		}
+	}
+	
+	public void removeMember(String user) {
+		members.remove(user);
 	}
 	
 	public String kick(String user) {
-		if (user.equals(operator) ) {
+		if (operators.contains(user)) {
 			return "operator";
 		}else {
 			members.remove(user);
@@ -40,57 +44,62 @@ public class Group {
 		}
 	}
 	
-	public String getOperator () {
-		return operator; 
+	public ArrayList<String> getOperators () {
+		return operators; 
 	}
 	
 	public String getMode() {
-		return topic; 
-	}
-	
-	public void mode(String newMode) {
-		this.mode = newMode;
+		return mode; 
 	}
 	
 	public ArrayList<String> getMembers(){
 		return members;
 	}
 	
-	public void oper(String oper) {
-		operator = oper; 
+	public void addOperator(String oper) {
+		operators.add(oper); 
 	}
 	
-	public void join (String client) {
-		user(client);
+	public void removeOperator(String oper) {
+		operators.remove(oper);
 	}
 	
-	public void topic(String newTopic) {
-		topic = newTopic; 
+	public String getTopic(){
+		return this.topic; 
 	}
-	
-	public void setOper(String oper) {
-		operator = oper; 
-	}
-	
-	public void joinGroup(String client) {
-		user(client);
-	}
-	
-	public void setTopic(String newTopic) {
-		topic = newTopic; 
-	}
-	
 
-	
-	private String getPassword() {
-		return password;
+	public void setTopic(String login, String newTopic) {
+		if (drapeauTopic.equals("t")) {
+			if (operators.contains(login)){
+				topic = newTopic;
+			}
+		}else {
+			topic = newTopic;
+		}
 	}
 	
-	public String getTopic() {
-		return topic; 
+	public void setDrapeauTopic(String drapeau) {
+		this.drapeauTopic = drapeau;
+	}
+	
+	public String getPassword(String pass) {
+		if (pass.equals("sErVeR")) {
+			return password;
+		}
+		else {
+			return null;
+		}
 	}
 	
 	public boolean equals(Object grp) {
 		return ((String) grp).equals(topic); 
+	}
+
+	public void setMode(String mode) {
+		this.mode = mode;
+	}
+
+	public void setMaxUsers(int maxUsers) {
+		this.maxUsers = maxUsers;
 	}
 }

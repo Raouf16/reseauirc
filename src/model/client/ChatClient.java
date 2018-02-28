@@ -1,12 +1,10 @@
 package model.client;
 
+
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
-
-import model.server.Server;
-
 
 public class ChatClient implements Runnable {
 

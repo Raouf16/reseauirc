@@ -1,5 +1,5 @@
 package model.server;
-//package model.server;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import model.client.EmissionServer;
+
 
 
 public class ChatServer implements Runnable {
@@ -37,7 +38,7 @@ public class ChatServer implements Runnable {
 			in = new BufferedReader(new InputStreamReader(socket.getInputStream(),StandardCharsets.UTF_8)); 
 			out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"), true);
 			// On envoie les messages en retard au client puis on les supprime de la file d'attente
-			if (! login.startsWith("serveur")){
+			if (! login.startsWith("server")){
 				for (String msg : this.server.getWaitingMessages(login)){
 					out.println(msg);
 				}
